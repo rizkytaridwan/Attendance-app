@@ -1,0 +1,134 @@
+//create user
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+    "name":"Rizky User",
+    "email":"usuerr@gmail.com",
+    "password":"123",
+    "confPassword":"123",
+    "role":"user",
+    "departement":"HR",
+    "position":"Manager"
+}
+
+###
+//get all users
+GET http://localhost:8000/users
+
+###
+//get single user
+GET http://localhost:8000/users/d94fdcab-560d-43a4-a788-9f431a1ee404
+
+###
+//update user
+PATCH http://localhost:8000/users/363c01e6-33e1-419b-a37c-7159fbbfda64
+Content-Type: application/json
+
+{
+    "name":"Taufiq Aditya",
+    "password":"",
+    "confPassword":"",
+    "role":"user",
+    "departement":"Ownerr",
+    "position":"Ownerr"
+}
+
+###
+//delete
+DELETE http://localhost:8000/users/38d304c4-4df1-456a-ad09-14a63babdec6
+
+###
+//login admin
+POST http://localhost:8000/Login
+Content-Type: application/json
+ 
+{
+    "email":"admin@gmail.com",
+    "password":"123"
+}
+
+###
+//login user
+POST http://localhost:8000/Login
+Content-Type: application/json
+ 
+{
+    "email":"user@gmail.com",
+    "password":"123"
+}
+###
+//Me
+GET http://localhost:8000/me
+###
+//logout
+DELETE http://localhost:8000/Logout
+
+###
+//attendance checkin
+POST http://localhost:8000/attendance
+Content-Type: application/json
+
+{
+    "location": "Office",
+    "status": "Checked in"
+}
+###
+//checkout
+POST http://localhost:8000/attendance
+Content-Type: application/json
+
+{
+    "checkOut": true,
+    "location": "Office"
+}
+
+###
+//allattendance
+GET http://localhost:8000/attendance
+
+### absent
+GET http://localhost:8000/absent
+###
+//byidattendance
+GET http://localhost:8000/attendance/f8191982-622f-4371-8969-c5a00ff7043b
+
+###
+//leave
+POST http://localhost:8000/request
+Content-Type: application/json
+
+{
+    "start_date": "2024-11-30",
+    "end_date": "2024-11-31",
+    "reason": "aksnd"
+}
+###
+PATCH http://localhost:8000/approve-request/d24c2d6c-873b-4f66-a886-e5636863b063
+
+###
+PATCH http://localhost:8000/reject-request/474dce59-3fb2-4d94-8e5a-5df6da18ed50
+
+###
+GET http://localhost:8000/request
+
+###
+GET http://localhost:8000/request/474dce59-3fb2-4d94-8e5a-5df6da18ed50
+
+
+###
+DELETE http://localhost:8000/attendance/90822fcd-12eb-4016-92dc-bd030365d6be
+
+###
+PATCH http://localhost:8000/attendance/b91323de-0c7e-4f27-ba51-60061a479f1c
+Content-Type: application/json
+
+{
+    "location":"Masjid"
+}
+
+###attandance by session
+GET http://localhost:8000/attendance-by-session
+
+###request by session
+GET http://localhost:8000/request-by-session

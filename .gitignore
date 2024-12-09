@@ -1,2 +1,2 @@
-node_modules/
-.env
+/bc/node_modules/
+/bc/.env

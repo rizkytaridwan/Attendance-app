@@ -3,7 +3,7 @@ import argon2 from "argon2";
 export const getUsers = async (req, res) => {
     try {
         const response = await User.findAll({
-            attributes: ['uuid','name','email','role','departement','position','image'],
+            attributes: ['uuid','name','email','departement','position','image'],
         });
         res.status(200).json(response);
     } catch (error) {
@@ -63,42 +63,51 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     const user = await User.findOne({
-      where: {
-        uuid: req.params.id
-      }
+        where: {
+            uuid: req.params.id
+        }
     });
-  
+
     if (!user) return res.status(404).json({ msg: "User tidak ditemukan" });
-  
+
     const { name, email, password, confPassword, role, departement, position } = req.body;
-  
+
     if (password !== confPassword) {
-      return res.status(400).json({ msg: "Password dan Confirm Password tidak cocok" });
+        return res.status(400).json({ msg: "Password dan Confirm Password tidak cocok" });
     }
-  
-    let hashPassword = user.password; // Default ke password yang lama jika tidak ada perubahan password
+
+    let hashPassword = user.password; 
     if (password && password !== "") {
-      hashPassword = await argon2.hash(password); // Hanya lakukan hashing jika ada password baru
+        hashPassword = await argon2.hash(password); 
     }
-  
+
+    let imagePath = user.image; 
+    if (req.file) {
+        imagePath = `/uploads/${req.file.filename}`;
+    }
+
     try {
-      await User.update({
-        name: name,
-        email: email,
-        password: hashPassword,
-        role: role,
-        departement: departement,
-        position: position
-      }, {
-        where: { uuid: req.params.id }
-      });
-  
-      res.status(200).json({ msg: "User updated successfully" });
+        await User.update(
+            {
+                name,
+                email,
+                password: hashPassword,
+                role,
+                departement,
+                position,
+                image: imagePath,
+            },
+            {
+                where: { uuid: req.params.id },
+            }
+        );
+
+        res.status(200).json({ msg: "User updated successfully" });
     } catch (error) {
-      console.error(error);
-      res.status(400).json({ msg: "Error updating user" });
+        console.error(error);
+        res.status(500).json({ msg: "Terjadi kesalahan pada server: " + error.message });
     }
-  }
+};
 
 export const deleteUser = async (req, res) => {
     const user = await User.findOne({
