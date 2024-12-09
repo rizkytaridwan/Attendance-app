@@ -5,8 +5,6 @@ import { Op } from "sequelize";
 
 export const createAttendance = async (req, res) => {
   try {
-    console.log("Session UserId:", req.session.userId);
-
     const userId = req.session.userId;
     if (!userId) {
       return res.status(401).json({ msg: "Unauthorized, please log in first" });
@@ -17,6 +15,7 @@ export const createAttendance = async (req, res) => {
 
     const { checkOut, location = "Unknown", status = "Checked In" } = req.body;
 
+    // Handle check-in with image
     if (!checkOut) {
       const attendance = await Attendance.findOne({
         where: {
@@ -26,12 +25,17 @@ export const createAttendance = async (req, res) => {
       });
 
       if (attendance) {
-        return res
-          .status(400)
-          .json({ msg: "User sudah melakukan check-in hari ini." });
+        return res.status(400).json({ msg: "User sudah melakukan check-in hari ini." });
       }
 
       const checkInTime = new Date();
+
+      // Handle image upload for check-in
+      let checkInImage = null;
+      if (req.files && req.files.checkInImage) {
+        checkInImage = req.files.checkInImage[0].path; // Save the path of the uploaded image
+      }
+
       await Attendance.create({
         userId: user.id,
         name: user.name,
@@ -41,11 +45,10 @@ export const createAttendance = async (req, res) => {
         check_out_time: null,
         location,
         status,
+        check_in_image: checkInImage, // Save the image path
       });
 
-      const checkInTimeLocal = moment(checkInTime)
-        .tz("Asia/Jakarta")
-        .format("YYYY-MM-DD HH:mm:ss");
+      const checkInTimeLocal = moment(checkInTime).tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
 
       return res.status(200).json({
         msg: "Check-in berhasil!",
@@ -54,6 +57,7 @@ export const createAttendance = async (req, res) => {
       });
     }
 
+    // Handle check-out with image
     const attendance = await Attendance.findOne({
       where: {
         userId: user.id,
@@ -66,9 +70,17 @@ export const createAttendance = async (req, res) => {
     }
 
     const checkOutTime = new Date();
+
+    // Handle image upload for check-out
+    let checkOutImage = null;
+    if (req.files && req.files.checkOutImage) {
+      checkOutImage = req.files.checkOutImage[0].path; // Save the path of the uploaded image
+    }
+
     attendance.check_out_time = checkOutTime;
     attendance.location = location;
     attendance.status = "Checked Out";
+    attendance.check_out_image = checkOutImage; // Save the image path
 
     await attendance.save();
 
@@ -84,14 +96,10 @@ export const createAttendance = async (req, res) => {
     }
 
     const totalHours = Math.floor(timeDifference / (1000 * 60 * 60));
-    const totalMinutes = Math.floor(
-      (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
-    );
+    const totalMinutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
 
     const totaljam = `${totalHours} jam ${totalMinutes} menit`;
-    const checkOutTimeLocal = moment(checkOutTime)
-      .tz("Asia/Jakarta")
-      .format("YYYY-MM-DD HH:mm:ss");
+    const checkOutTimeLocal = moment(checkOutTime).tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
 
     return res.status(200).json({
       msg: "Check-out berhasil!",
@@ -116,6 +124,8 @@ export const getAttendance = async (req, res) => {
         "check_out_time",
         "location",
         "status",
+        "check_in_image",
+        "check_out_image",
       ],
     });
 
@@ -154,6 +164,8 @@ export const getAttendanceById = async (req, res) => {
         "check_out_time",
         "location",
         "status",
+        "check_in_image",
+        "check_out_image",
       ],
       where: {
         uuid: req.params.id,

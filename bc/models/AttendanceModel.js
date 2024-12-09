@@ -37,6 +37,12 @@ const Attendance = db.define(
     status: {
       type: DataTypes.STRING,
     },
+    check_in_image: {
+      type: DataTypes.STRING, 
+    },
+    check_out_image: {
+      type: DataTypes.STRING, 
+    },
     userId: {
       type: DataTypes.INTEGER, 
       allowNull: false,
